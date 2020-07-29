@@ -1,16 +1,18 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It is a breeze. Simply tell Lumen the URIs it should respond to
-| and give it the Closure to call when that URI is requested.
-|
-*/
+use \App\Http\Controllers\ctrlFinanController;
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+$router->group(['prefix' => "/api/v1/ctrlF"], function() use ($router){
+    $router -> get("/{month}/{user}", "ctrlFinanController@getAll");
+    $router -> get("/Details/{id}/{user}", "ctrlFinanController@get");
+    $router -> post("/", "ctrlFinanController@create");
+    $router -> put("/{id}", "ctrlFinanController@Update");
+    $router -> delete("/{id}", "ctrlFinanController@Delete");
 });
+
+$router->group(['prefix' => "/api/v1/user/"], function() use ($router){
+    $router -> get("/{month}/{user}", "crtlFinanController@getAll");
+    $router -> get("/Details/{id}/{user}", "crtlFinanController@get");
+    $router -> post("/", "crtlFinanController@create");
+});
+$router->get('', "crtlFinanController@getAll");
