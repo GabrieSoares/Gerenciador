@@ -22,9 +22,9 @@ class ctrlFinanService
                     cas.value,
                     cas.porion,
                     cas.status,
-                    p.descripction 'pay_description',
+                    p.description 'pay_description',
                     p.color 'pay_calor',
-                    cat.descripction 'cat_description',
+                    cat.description 'cat_description',
                     cat.color 'cat_calor'
                 FROM cash_flow cas
                 JOIN payment p ON cas.id_payment = p.id_payment and p.id_user = " . $user . "
@@ -43,9 +43,9 @@ class ctrlFinanService
                     cas.value,
                     cas.porion,
                     cas.status,
-                    p.descripction 'pay_description',
+                    p.description 'pay_description',
                     p.color 'pay_calor',
-                    cat.descripction 'cat_description',
+                    cat.description 'cat_description',
                     cat.color 'cat_calor'
                 FROM cash_flow cas
                 JOIN payment p ON cas.id_payment = p.id_payment and p.id_user = " . $user . "
@@ -73,5 +73,16 @@ class ctrlFinanService
     public function Delete($id)
     {
         return app('db')->select("DELETE FROM cash_flow WHERE id_cash_flow = {$id}");
+    }
+
+    public function updateStatus($id, $user)
+    {
+        $porion =  $this::get($id, $user);
+        if ($porion[0]->status == 0){
+            $status = 1;
+        } else if ($porion[0]->status == 1){
+            $status = 0;
+        }
+        return app('db')->select("UPDATE cash_flow c SET c.status = {$status} WHERE c.id_cash_flow = {$id} and c.id_user = {$user}");
     }
 }

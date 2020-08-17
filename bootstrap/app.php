@@ -48,6 +48,11 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+
+$app->register(
+    Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class
+);
+
 /*
 |--------------------------------------------------------------------------
 | Register Config Files
@@ -92,7 +97,7 @@ $app->configure('app');
 */
 
 $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
+ $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
 /*

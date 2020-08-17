@@ -4,24 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\validaFinan;
+use App\Models\validaCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\Response;
-use App\Services\ctrlFinanService;
+use App\Services\CategoryService;
 
-class ctrlFinanController extends Controller
+class CategoryController extends Controller
 {
     private $service;
 
-    public function __construct(ctrlFinanService $service)
+    public function __construct(CategoryService $service)
     {
         $this->service = $service;
     }
-    public function getAll($month, $user)
+    public function getAll($user)
     {
         try {
-            return response()->json($this->service->getAll($month, $user), Response::HTTP_OK);
+            return response()->json($this->service->getAll($user), Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -39,7 +39,7 @@ class ctrlFinanController extends Controller
     public function create(Request $request)
     {
         $arrDados = $request->all();
-        $validator = Validator::make($arrDados, validaFinan::RULE_CRTL_FIAN);
+        $validator = Validator::make($arrDados, validaCategory::RULE_CATEGORY);
         if ($validator->fails()) {
             return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
         }
@@ -49,33 +49,24 @@ class ctrlFinanController extends Controller
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    public function Update($id, Request $request)
+    public function Update($id, $user, Request $request)
     {
         $arrDados = $request->all();
-        $validator = Validator::make($arrDados, validaFinan::RULE_CRTL_FIAN);
+        $validator = Validator::make($arrDados, validaCategory::RULE_CATEGORY);
         if ($validator->fails()) {
             return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
         }
         try{
-             return response()->json($this->service->Update($id,$arrDados), Response::HTTP_CREATED);
+             return response()->json($this->service->Update($id, $user, $arrDados), Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function Delete($id)
+    public function Delete($id, $user)
     {
         try {
-            return response()->json($this->service->Delete($id), Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public function updateStatus($id, $user)
-    {
-        try {
-            return response()->json($this->service->updateStatus($id, $user), Response::HTTP_OK);
+            return response()->json($this->service->Delete($id, $user), Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
