@@ -17,20 +17,21 @@ class CategoryController extends Controller
     public function __construct(CategoryService $service)
     {
         $this->service = $service;
+        $this->Middleware('jwt.auth');
     }
-    public function getAll($user)
+    public function getAll(Request $request)
     {
         try {
-            return response()->json($this->service->getAll($user), Response::HTTP_OK);
+            return response()->json($this->service->getAll($request->auth), Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function get($id, $user)
+    public function get($id, Request $request)
     {
         try {
-            return response()->json($this->service->get($id, $user), Response::HTTP_OK);
+            return response()->json($this->service->get($id, $request->auth), Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -39,6 +40,7 @@ class CategoryController extends Controller
     public function create(Request $request)
     {
         $arrDados = $request->all();
+        $arrDados['id_user'] = $request->auth[0]->id_user;
         $validator = Validator::make($arrDados, validaCategory::RULE_CATEGORY);
         if ($validator->fails()) {
             return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
@@ -49,24 +51,25 @@ class CategoryController extends Controller
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    public function Update($id, $user, Request $request)
+    public function Update(Request $request)
     {
         $arrDados = $request->all();
+        $arrDados['id_user'] = $request->auth[0]->id_user;
         $validator = Validator::make($arrDados, validaCategory::RULE_CATEGORY);
         if ($validator->fails()) {
             return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
         }
         try{
-             return response()->json($this->service->Update($id, $user, $arrDados), Response::HTTP_CREATED);
+             return response()->json($this->service->Update($arrDados), Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function Delete($id, $user)
+    public function Delete($id, Request $request)
     {
         try {
-            return response()->json($this->service->Delete($id, $user), Response::HTTP_OK);
+            return response()->json($this->service->Delete($id, $request->auth), Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

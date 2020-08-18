@@ -48,10 +48,9 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
-
-$app->register(
-    Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class
-);
+// $app->register(
+//     Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class
+// );
 
 /*
 |--------------------------------------------------------------------------
@@ -81,9 +80,9 @@ $app->configure('app');
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+$app->routeMiddleware([
+    'jwt.auth' => App\Http\Middleware\JwtMiddleware::class,
+]);
 
 /*
 |--------------------------------------------------------------------------

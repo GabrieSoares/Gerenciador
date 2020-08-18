@@ -10,47 +10,67 @@ use Symfony\Component\HttpFoundation\Response;
 class CategoryService
 {
 
-    public function getAll($user)
+    public function getAll($auth)
     {
-
-        return app('db')->select("SELECT 
-            c.id_category,
-            c.description,
-            c.color,
-            c.id_user 
-        FROM category c WHERE c.id_user = {$user};");
+        return DB::table('category')
+            ->where('id_user', $auth[0]->id_user)
+            ->get();
     }
 
-    public function get($id, $user)
+    public function get($id, $auth)
     {
-        return app('db')->select("SELECT 
-            c.id_category,
-            c.description,
-            c.color,
-            c.id_user 
-        FROM category c WHERE c.id_category = {$id} and c.id_user = {$user};");
+        return DB::table('category')
+            ->where([
+                ['id_user', $auth[0]->id_user],
+                ['id_category', $id]
+            ])
+            ->get();
     }
 
 
     public function create($data)
     {
-        $query = "INSERT INTO category(id_user, description, color) VALUES ({$data['id_user']},'{$data['description']}', '{$data['color']}' );";
-        return app('db')->select($query);
+        return DB::table('category')->insert(
+            [
+                'id_user' => $data['id_user'],
+                'description' => $data['description'],
+                'color' => $data['color']
+            ],
+        );
     }
 
-    public function update($id, $user, $data)
+    public function update($data)
     {
-        $query = "UPDATE category c SET c.description = '{$data['description']}', c.color = '{$data['color']}' WHERE c.id_category = {$id} AND c.id_user = {$user};";
-        return app('db')->select($query);
+        return DB::table('category')->updateOrInsert(
+            [
+                'id_user' => $data['id_user'],
+                'id_category' => $data['id_category']
+            ],
+            [
+                'description' => $data['description'],
+                'color' => $data['color']
+            ]
+        );
     }
 
-    public function Delete($id, $user)
+    public function Delete($id, $auth)
     {
-        $exist = app('db')->select("SELECT * FROM cash_flow f WHERE f.id_category = {$id} AND f.id_user = {$user};");
-        if (count($exist)) {
-            return 'Está categria está Relacionada a outros registros';
+        $valida = $exist = DB::table('category')->where([['id_user', $auth[0]->id_user], ['id_category', $id]])->get();
+        if (count($valida)) {
+            $exist = DB::table('cash_flow')->where([['id_user', $auth[0]->id_user], ['id_category', $id]])->get();
+            if (count($exist)) {
+                return ['msg' => 'Está categoria está Relacionada à outros registros'];
+            } else {
+                return DB::table('category')
+                    ->where([
+                        ['id_category', $id],
+                        ['id_user', $auth[0]->id_user]
+
+                    ])
+                    ->delete();
+            }
         } else {
-            return app('db')->select("DELETE FROM category WHERE id_category = {$id} AND id_user = {$user};");
+            return ['msg' => 'Registro não encontrado'];
         }
     }
 }
