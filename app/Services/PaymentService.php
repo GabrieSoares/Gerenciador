@@ -2,55 +2,74 @@
 
 namespace App\Services;
 
-
+use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\Response;
 
 class PaymentService
 {
 
-    public function getAll($user)
+    public function getAll($auth)
     {
-
-        return app('db')->select("SELECT 
-            p.id_payment,
-            p.description,
-            p.color,
-            p.id_user 
-        FROM payment p WHERE p.id_user = {$user};");
+        return DB::table('payment')
+            ->where('id_user', $auth[0]->id_user)
+            ->get();
     }
 
-    public function get($id, $user)
+    public function get($id, $auth)
     {
-        return app('db')->select("SELECT 
-            p.id_payment,
-            p.description,
-            p.color,
-            p.id_user 
-        FROM payment p WHERE p.id_payment = {$id} and p.id_user = {$user};");
+        return DB::table('payment')
+            ->where([
+                ['id_user', $auth[0]->id_user],
+                ['id_payment', $id]
+            ])
+            ->get();
     }
 
 
     public function create($data)
     {
-        $query = "INSERT INTO payment(id_user, description, color) VALUES ({$data['id_user']},'{$data['description']}', '{$data['color']}' );";
-        return app('db')->select($query);
+        return DB::table('payment')->insert(
+            [
+                'id_user' => $data['id_user'],
+                'description' => $data['description'],
+                'color' => $data['color']
+            ],
+        );
     }
 
-    public function update($id, $user, $data)
+    public function update($data)
     {
-        $query = "UPDATE payment p SET p.description = '{$data['description']}', p.color = '{$data['color']}' WHERE p.id_payment = {$id} AND p.id_user = {$user};";
-        return app('db')->select($query);
+        return DB::table('payment')->updateOrInsert(
+            [
+                'id_user' => $data['id_user'],
+                'id_payment' => $data['id_payment']
+            ],
+            [
+                'description' => $data['description'],
+                'color' => $data['color']
+            ]
+        );
     }
 
-    public function delete($id, $user)
+    public function delete($id, $auth)
     {
-        // $exist = app('db')->select("SELECT * FROM cash_flow f WHERE f.id_category = {$id} AND f.id_user = {$user};");
-        // if (count($exist)) {
-        //     return 'Está categria está Relacionada a outros registros';
-        // } else {
-        return app('db')->select("DELETE FROM payment WHERE id_payment = {$id} AND id_user = {$user};");
-        //}
+        $valida = $exist = DB::table('payment')->where([['id_user', $auth[0]->id_user], ['id_payment', $id]])->get();
+        if (count($valida)) {
+            $exist = DB::table('cash_flow')->where([['id_user', $auth[0]->id_user], ['id_payment', $id]])->get();
+            if (count($exist)) {
+                throw new Exception('Está Forma de Pagamento está Relacionada à outros registros', Response::HTTP_BAD_REQUEST);
+            } else {
+                return DB::table('payment')
+                    ->where([
+                        ['id_payment', $id],
+                        ['id_user', $auth[0]->id_user]
+
+                    ])
+                    ->delete();
+            }
+        } else {
+            throw new Exception('Registro não encontrado', Response::HTTP_BAD_REQUEST);
+        }
     }
 }

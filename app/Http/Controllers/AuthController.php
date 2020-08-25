@@ -10,7 +10,7 @@ use Firebase\JWT\ExpiredException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
-use App\Services\UserService;
+use Illuminate\Support\Facades\DB;
 use App\Models\validaUser;
 
 
@@ -28,7 +28,7 @@ class AuthController extends Controller
     {
         $payload = [
             'iss' => 'lumen-jwt',
-            'sub' => $user[0]->id_user,
+            'sub' => $user->id_user,
             'iat' => time(),
             'exp' => time() + 60 * 60
         ];
@@ -43,7 +43,7 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $user = app('db')->select("SELECT * FROM user u WHERE u.email ='{$data['email']}' LIMIT 1;");
+        $user = DB::table('user')->where('email', $data['email'])->first();
 
         if (!$user) {
             return response()->json([
@@ -52,7 +52,7 @@ class AuthController extends Controller
         }
         $password = $this->coreSerive->encrypt($data['password']);
 
-        if ($user[0]->password == $password) {
+        if ($user->password == $password) {
             return response()->json([
                 'token' => $this->jwt($user)
             ], Response::HTTP_OK);
@@ -61,12 +61,5 @@ class AuthController extends Controller
                 'error' => 'E-mail ou senha inválidos'
             ], Response::HTTP_BAD_REQUEST);
         }
-
-
-        // try {
-        //     return response()->json($this->service->login($request), Response::HTTP_OK);
-        // } catch (\Exception $e) {
-        //     return response()->json(['error' => $e, $e->getCode()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        // }
     }
 }

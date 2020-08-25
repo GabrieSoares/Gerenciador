@@ -28,10 +28,10 @@ $router->group(['prefix' => "/api/v1/category/"], function() use ($router){
     $router -> delete("{id}", "CategoryController@Delete");
 });
 
-$router->group(['prefix' => "/api/v1/payment"], function() use ($router){
-    $router -> get("/{user}", "PaymentController@getAll");
-    $router -> get("/Details/{id}/{user}", "PaymentController@get");
-    $router -> post("/", "PaymentController@create");
-    $router -> put("/{id}/{user}", "PaymentController@update");
-    $router -> delete("/{id}/{user}", "PaymentController@delete");
+$router->group(['prefix' => "/api/v1/payment/"], function() use ($router){
+    $router -> get("", "PaymentController@getAll");
+    $router -> get("{id}", "PaymentController@get");
+    $router -> post("", "PaymentController@create");
+    $router -> put("", "PaymentController@update");
+    $router -> delete("{id}", "PaymentController@delete");
 });

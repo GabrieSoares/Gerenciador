@@ -4,7 +4,7 @@ namespace App\Services;
 
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class CategoryService
@@ -59,7 +59,7 @@ class CategoryService
         if (count($valida)) {
             $exist = DB::table('cash_flow')->where([['id_user', $auth[0]->id_user], ['id_category', $id]])->get();
             if (count($exist)) {
-                return ['msg' => 'Está categoria está Relacionada à outros registros'];
+                throw new Exception('Está categoria está Relacionada à outros registros', Response::HTTP_BAD_REQUEST);
             } else {
                 return DB::table('category')
                     ->where([
@@ -70,7 +70,7 @@ class CategoryService
                     ->delete();
             }
         } else {
-            return ['msg' => 'Registro não encontrado'];
+            throw new Exception('Registro não encontrado', Response::HTTP_BAD_REQUEST);
         }
     }
 }

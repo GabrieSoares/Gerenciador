@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\validaCategory;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\CategoryService;
 
@@ -71,7 +69,7 @@ class CategoryController extends Controller
         try {
             return response()->json($this->service->Delete($id, $request->auth), Response::HTTP_OK);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['error' => $e->getMessage()], $e->getCode());
         }
     }
 }
